@@ -1,12 +1,22 @@
 from datetime import datetime
-# Collect two dates.
-# Print the time between those two dates.
 
-start_date = input("Enter start date MM-Day-Year: ")
-end_date = input("Enter end date MM-Day-Year: ")
-start = datetime(int(start_date[6:10]), int(start_date[0:2]), int(start_date[3:5]) )
-end = datetime(int(end_date[6:]), int(end_date[:2]), int(end_date[3:5]))
-days_apart = abs((start - end)).days
-years_apart = days_apart / 365
-print("from {} to {} is a difference of {} (days), {:.1f} (months), {:.1f} years."
-      .format(start_date, end_date, days_apart, years_apart * 12, years_apart))
+print("Days between two dates.")
+print("="*50)
+
+# User input
+first_date_str = input("Enter first date MM-DD-YYYY: ")
+second_date_str = input("Enter second date MM-Day-YYYY: ")
+print("="*50)
+
+# Creating date objects (year, month, day)
+date_1 = datetime(int(first_date_str[6:]), 
+                        int(first_date_str[:2]), 
+                              int(first_date_str[3:5]) )
+date_2 = datetime(int(second_date_str[6:]), 
+                        int(second_date_str[:2]), 
+                              int(second_date_str[3:5]) )
+# Calculating days apart
+days_apart = abs((date_1 - date_2)).days
+
+# Displaying info
+print( "{} and {} are {} days apart.".format(first_date_str, second_date_str, days_apart))

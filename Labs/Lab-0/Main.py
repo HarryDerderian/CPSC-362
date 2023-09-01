@@ -5,7 +5,7 @@ print("="*50)
 
 # User input
 first_date_str = input("Enter first date MM-DD-YYYY: ")
-second_date_str = input("Enter second date MM-Day-YYYY: ")
+second_date_str = input("Enter second date MM-DD-YYYY: ")
 print("="*50)
 
 # Creating date objects (year, month, day)

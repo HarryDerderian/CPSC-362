@@ -72,7 +72,7 @@ if __name__ == "__main__":
             tracker.update_task_status(id, status)
 
         elif choice == 3:
-            id = input("Enter task ID to comment on: ")
+            id = int(input("Enter task ID to comment on: "))
             comment = input("Enter your comment: ")
             tracker.add_comment_to_task(id, comment)
 

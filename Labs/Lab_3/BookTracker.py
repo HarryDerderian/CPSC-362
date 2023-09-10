@@ -255,6 +255,10 @@ def main() :
             tracker.list_book_titles()
             title = input("Enter the title of the book you would like to see the details of: ").lower()
             tracker.display_book_info(title)
+        
+        elif choice == 11 :
+            print("Thank you for using book tracker, have a nice day.")
+            break
         else:
             print("Invalid Selection.")
 main()    

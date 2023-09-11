@@ -1,3 +1,16 @@
+import os
+import platform
+
+# Helps with keeping terminal output clean
+def clear_terminal():
+    try :
+        system = platform.system()
+        if system == "Windows":
+            os.system("cls")
+        else:
+            os.system("clear")
+    except :
+         pass
 
 # CONSTANTS
 GENRES_MAPPING = {
@@ -8,9 +21,8 @@ GENRES_MAPPING = {
         }
 GENRES = ("Genres:\n1. Action, 2. Adventure, 3. Comedy, 4. Crime/Mystery, 5. Fantasy, 6. Historical," + 
           "\n7. Horror, 8. Romance, 9. Satire, 10. Sci-Fi, 11. Speculative, 12. Thriller, 13. Isekai")
-
 class Book :
-    def __init__(self, title, genre, rating=0) :
+    def __init__(self, title, genre, rating=-1) :
         self.title = title
         self.genre = genre
         self.rating = rating
@@ -52,9 +64,18 @@ class BookTracker:
     def __init__(self):
         self.books = {}
 
-    def add_book(self, book):
-        #self.books.append(book)
-        self.books[book.title.lower()] = book
+    def add_book(self):
+         title = input("Enter book's title: ")
+         while title.lower() in self.books.keys() :
+              print("\nA book with the title {} already exists in the catalog.".format(title))
+              title = input("Please enter a slightly different or new title: ")
+         print(GENRES)
+         print("Enter only a number 1 - 13.")
+         genre = GENRES_MAPPING[int(input("Enter the genre: "))]
+         rating = int(input("Enter book rating 1-10: "))
+         self.books[title.lower()] = Book(title, genre, rating)    
+         print("Added {} to list of books.".format(title))
+        
     
     def remove(self, title) :
        if title not in self.books.keys() :
@@ -62,7 +83,7 @@ class BookTracker:
        else :
             orginal_title = self.books[title].title
             del self.books[title]
-            print("Removed:{}".format(orginal_title))
+            print("Removed: {}".format(orginal_title))
        
     def update_book(self, title) :
             if title not in self.books.keys() :
@@ -93,27 +114,31 @@ class BookTracker:
                 print("Invalid selection.")
 
     def list_book_titles(self) :
-          
-            print("\nBook Titles")
+            print("\nCurrent books in catalog:")
             for book in self.books.values() :
                 print(book.title + ", ", end="")
             print()
     
     def list_books(self) :
+            print("\nAll books: ")
             for book in self.books.values() :
                 print("Book: {}, genre: {}, rating: {}, review: {}".format(book.title, 
                                                     book.genre, book.rating, book.review))
 
     def list_books_by_genre(self, genre) :
-            print("All books with the genre: {}".format(genre))
+            print("\nAll books with the genre: {}".format(genre))
             for book in self.books.values() :
                 if(book.genre == genre) :
                   print("Book: {}, genre: {}, rating: {}, review: {}".format(book.title, 
                                              book.genre, book.rating, book.review))
+            print()
+
     def sort_by_rating(self) :
+        print("\nBOOKS BY RATING")
         for book in reversed(sorted(self.books.values())) :
-            print("Rating: {}, title: {}, genre: {}, review: {}"
+            print("Rating: {}| title: {}, genre: {}, review: {}"
                   .format(book.rating,book.title, book.genre, book.review))
+        print()
 
     def total_books_by_genre(self) -> int:
         # WHY DO WE HAVE SO MANY GENRES UGHHHHHHHHHHHHHHH
@@ -204,57 +229,79 @@ def main() :
             choice = int(input("Enter your choice: "))
         except :
             choice = -1
+        clear_terminal()
+
 
         if choice == 1:
-         title = input("Enter book's title: ")
-         print(GENRES)
-         print("Enter only a number 1 - 13.")
-         genre = int(input("Enter the genre: ")) # check for int input later
-         rating = int(input("Enter book rating 1-10: "))
-         tracker.add_book(Book(title, GENRES_MAPPING[genre], rating))
-         print("Added {} to list of books.".format(title))
+         print("Adding a book...")
+         try :
+            tracker.add_book()
+         except:
+              print("Unexpected input... please try again")
 
         elif choice == 2:
-            print()
-            tracker.list_books()
+            try:
+                tracker.list_books()
+            except :
+                  print("Unexpected input... please try again")
 
         elif choice == 3:
+          try: 
+            print("\nView by Genre")
             print(GENRES)
             print("Enter only a number 1 - 13.")
-            genre = GENRES_MAPPING[int(input("Enter genre: "))] # check for int input later
+            genre = GENRES_MAPPING[int(input("Enter genre: "))] 
             tracker.list_books_by_genre(genre)
+          except :
+                print("Unexpected input... please try again")
+
 
         elif choice == 4 :
+          try : 
            tracker.list_book_titles()
            title = input("Enter the book's title to rate it: ").lower()
            tracker.rate_book(title)
+          except :
+               print("Unexpected input... please try again")
 
         elif choice == 5:
-           tracker.list_book_titles()
-           title = input("Enter book's title to remove: ").lower()
-           tracker.remove(title)
+          try: 
+            tracker.list_book_titles()
+            title = input("Enter book's title to remove: ").lower()
+            tracker.remove(title)
+          except :
+               print("Unexpected input... please try again")
 
         elif choice == 6:
-            tracker.list_book_titles()
-            title = input("Enter the title of the book you would like to update: ").lower()
-            tracker.update_book(title)
+          try:   
+                tracker.list_book_titles()
+                title = input("Enter the title of the book you would like to update: ").lower()
+                tracker.update_book(title)
+          except :
+               print("Unexpected input... please try again")
         
         elif choice == 7:
-            print("\nDisplaying books by rating:")
-            tracker.sort_by_rating()
+                print("\nDisplaying books by rating:")
+                tracker.sort_by_rating()
         
         elif choice == 8 :
             tracker.total_books_by_genre()
         
         elif choice == 9 :
+          try :  
             tracker.list_book_titles()
             title = input("Enter the title of the book you would like to review: ").lower()
             tracker.review_book(title)
+          except :
+               print("Unexpected input... please try again")
 
         elif choice == 10 :
+          try : 
             tracker.list_book_titles()
             title = input("Enter the title of the book you would like to see the details of: ").lower()
             tracker.display_book_info(title)
+          except :
+               print("Unexpected input... please try again")
         
         elif choice == 11 :
             print("Thank you for using book tracker, have a nice day.")

@@ -73,6 +73,7 @@ class BookTracker:
          print("Enter only a number 1 - 13.")
          genre = GENRES_MAPPING[int(input("Enter the genre: "))]
          rating = int(input("Enter book rating 1-10: "))
+         if rating < 1 or rating > 10 : raise ValueError 
          self.books[title.lower()] = Book(title, genre, rating)    
          print("Added {} to list of books.".format(title))
         
@@ -108,6 +109,7 @@ class BookTracker:
                 print("Updated genre.")
             elif selection == 3 :
                 new_rating = int(input("Enter new rating 1-10: "))
+                if new_rating < 1 or new_rating > 10 : raise ValueError 
                 self.books[title].rating = new_rating
                 print("Updated rating.")
             else :
@@ -116,7 +118,7 @@ class BookTracker:
     def list_book_titles(self) :
             print("\nCurrent books in catalog:")
             for book in self.books.values() :
-                print(book.title + ", ", end="")
+                print(book.title + "  ", end="")
             print()
     
     def list_books(self) :
@@ -191,6 +193,7 @@ class BookTracker:
                 return
         else :
              rating = int(input("Enter book rating 1-10: "))
+             if rating < 1 or rating > 10 : raise ValueError 
              self.books[title].rating = rating
              print("Updated rating for: {}".format(self.books[title].title))
 
@@ -217,7 +220,7 @@ def main() :
         print("1. Add book")
         print("2. List books")
         print("3. Search books by genre")
-        print("4. Rate a book")
+        print("4. Update rating of a book")
         print("5. Delete book")
         print("6. Update book")
         print("7. Sort by rating")

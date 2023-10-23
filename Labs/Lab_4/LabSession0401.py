@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import messagebox, font, ttk
 import sqlite3
+import uuid
 
 def init_db():
     """Initialize the SQLite database and create table if not exists."""
@@ -8,7 +9,7 @@ def init_db():
     control = data_base.cursor()
     # int: id, str: name, str: description, int: quantity 
     control.execute('''CREATE TABLE IF NOT EXISTS products
-    (id INTEGER PRIMARY KEY, name TEXT NOT NULL, manufacturer TEXT, 
+    (id TEXT PRIMARY KEY, name TEXT NOT NULL, manufacturer TEXT, 
                     description TEXT, quantity INTEGER NOT NULL, expiry TEXT);''')
     data_base.commit()
     data_base.close()
@@ -40,10 +41,10 @@ def add_product():
         data_base = sqlite3.connect('inventory.db')
         data_editor = data_base.cursor()
         SQL_COMMAND = "INSERT INTO products (id, name, manufacturer, description, quantity, expiry) VALUES (?,?,?,?,?,?)"
-        data_editor.execute(SQL_COMMAND, (0, name, manufacturer, None, stock, expiry))
+        data_editor.execute(SQL_COMMAND, (str(uuid.uuid4()), name, manufacturer, None, stock, expiry))
         data_base.commit()
         data_base.close()
-       except : pass
+       except Exception as e: messagebox.showerror("Error", str(e))
 
 
 def load_notes():

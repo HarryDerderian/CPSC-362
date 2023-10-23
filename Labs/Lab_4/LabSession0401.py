@@ -8,24 +8,43 @@ def init_db():
     control = data_base.cursor()
     # int: id, str: name, str: description, int: quantity 
     control.execute('''CREATE TABLE IF NOT EXISTS products
-    (id INTEGER PRIMARY KEY,
-    name TEXT NOT NULL, description TEXT, quantity INTEGER NOT NULL);''')
+    (id INTEGER PRIMARY KEY, name TEXT NOT NULL, manufacturer TEXT, 
+                    description TEXT, quantity INTEGER NOT NULL, expiry TEXT);''')
     data_base.commit()
     data_base.close()
 
 def add_product():
     """Add a new product to the database."""
-    note = note_var.get()
-    if note:
-        conn = sqlite3.connect('notes.db')
-        c = conn.cursor()
-        c.execute("INSERT INTO notes (note_text) VALUES (?)", (note,))
-        conn.commit()
-        conn.close()
-        note_var.set('') # Clear the input
-        load_notes()
-    else:
-        messagebox.showerror("Error", "Note cannot be empty!")
+    # Collect data from input fields:
+    name = name_user_input.get()
+    manufacturer = manufacturer_input.get()
+    expiry = expiry_user_input.get()
+    stock = stock_user_input.get()
+
+    # Verify data inputs are correct...
+    if not name or not manufacturer or not expiry or not stock:
+        messagebox.showerror("Error", "Please fill in all required fields.")
+        return
+    # Confirm that stock count is an int > -1
+    try : # make sure to catch invalid int conversions
+        if int(stock) < 0 :
+            messagebox.showerror("Error", "Stock count can't be negative.")
+            return
+    except :
+        messagebox.showerror("Error", "Stock must be an int")
+        return
+    # All inputs passed... continue!
+    else :
+        # ESTABLISH CONNECTION TO DATA BASE
+       try : 
+        data_base = sqlite3.connect('inventory.db')
+        data_editor = data_base.cursor()
+        SQL_COMMAND = "INSERT INTO products (id, name, manufacturer, description, quantity, expiry) VALUES (?,?,?,?,?,?)"
+        data_editor.execute(SQL_COMMAND, (0, name, manufacturer, None, stock, expiry))
+        data_base.commit()
+        data_base.close()
+       except : pass
+
 
 def load_notes():
     """Load and display all notes from the database."""
@@ -45,15 +64,16 @@ def delete_note():
         conn.commit()
         conn.close()
         load_notes()
+
+
 # Initialize main window
 root = tk.Tk()
 root.title("Inventory Management System")
+
 # Width and height of the GUI (pixels)
 GUI_SIZE = "1200x700"
 root.geometry(GUI_SIZE)
 root.resizable = False
-# Center the GUI on the screen
-
 
 # Text labels
 LABEL_FONT = font.Font(family="Times new roman", size=15)
@@ -81,26 +101,38 @@ stock_label['font'] = LABEL_FONT
 # Input text fields:
 TEXT_INPUT_WIDTH = 30 # (pixels)
 # Entry font updates the height of the Entry object
-INPUT_FONT = font.Font(family="Times new roman", size = 20)
+INPUT_FONT = font.Font(family = "Times new roman", size = 20)
 # Name input bar
-name_input = tk.Entry(root, width = TEXT_INPUT_WIDTH)
+name_user_input = tk.StringVar() # Gives access to the input within the associated text field.
+name_input = tk.Entry(root, width = TEXT_INPUT_WIDTH, 
+                      textvariable = name_user_input)
 name_input.place(x = 450, y = 45 )
 name_input['font'] = LABEL_FONT 
 
+
 # Manufacturer input bar
-manufacturer_input = tk.Entry(root, width = TEXT_INPUT_WIDTH)
+manufacturer_user_input = tk.StringVar() # Gives access to the input within the associated text field.
+manufacturer_input = tk.Entry(root, width = TEXT_INPUT_WIDTH, 
+                              textvariable = manufacturer_user_input)
 manufacturer_input.place(x = 450, y = 135 )
-manufacturer_input['font'] = LABEL_FONT 
+manufacturer_input['font'] = LABEL_FONT
+
 
 # Expiry input bar
-expiry_input = tk.Entry(root, width = TEXT_INPUT_WIDTH)
+expiry_user_input = tk.StringVar() # Gives access to the input within the associated text field.
+expiry_input = tk.Entry(root, width = TEXT_INPUT_WIDTH, 
+                        textvariable = expiry_user_input)
 expiry_input.place(x = 450, y = 225 )
-expiry_input['font'] = LABEL_FONT 
+expiry_input['font'] = LABEL_FONT
+ 
 
 # Stock input bar
-stock_input = tk.Entry(root, width = TEXT_INPUT_WIDTH)
+stock_user_input = tk.StringVar() # Gives access to the input within the associated text field.
+stock_input = tk.Entry(root, width = TEXT_INPUT_WIDTH,
+                       textvariable = stock_user_input)
 stock_input.place(x = 450, y = 315 )
-stock_input['font'] = LABEL_FONT 
+stock_input['font'] = LABEL_FONT
+
 
 # Buttons :
 BUTTON_FONT = font.Font(family="Times new roman", size = 20)
@@ -109,7 +141,7 @@ BUTTON_WIDTH = 15 # (pixels)
 # 'Add' button
 add_button = tk.Button(root, text = "Add Product",
                     width = BUTTON_WIDTH, height = BUTTON_HEIGHT,
-                                                    command = None)
+                                                    command = add_product)
 add_button.place(x = 100, y = 370)
 
 # 'Delete' button

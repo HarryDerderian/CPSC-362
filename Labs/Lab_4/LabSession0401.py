@@ -3,7 +3,7 @@ from tkinter import messagebox, font, ttk
 import sqlite3
 import uuid
 
-def init_db():
+def init_db() :
     """Initialize the SQLite database and create table if not exists."""
     data_base = sqlite3.connect('inventory.db')
     control = data_base.cursor()
@@ -14,57 +14,90 @@ def init_db():
     data_base.commit()
     data_base.close()
 
-def add_product():
-    """Add a new product to the database."""
-    # Collect data from input fields:
+
+def verify_input() -> bool :
+    """Confirms all user input is filled in and correct"""
     name = name_user_input.get()
     manufacturer = manufacturer_input.get()
     expiry = expiry_user_input.get()
     stock = stock_user_input.get()
-
     # Verify data inputs are correct...
     if not name or not manufacturer or not expiry or not stock:
         messagebox.showerror("Error", "Please fill in all required fields.")
-        return
+        return False
     # Confirm that stock count is an int > -1
     try : # make sure to catch invalid int conversions
         if int(stock) < 0 :
             messagebox.showerror("Error", "Stock count can't be negative.")
-            return
+            return False
     except :
         messagebox.showerror("Error", "Stock must be an int")
-        return
-    # All inputs passed... continue!
+        return False
+    else : 
+        return True
+
+def del_product() -> None : 
+    """Deleting a product from the database."""
+    # Confirm user input is correct.
+    if not verify_input() : return
     else :
-        # ESTABLISH CONNECTION TO DATA BASE
-       try : 
+        # Collect user input:
+        name = name_user_input.get()
+        manufacturer = manufacturer_input.get()
+        expiry = expiry_user_input.get()
+        stock = stock_user_input.get()
+    try :
+        # ESTABLISH CONNECTION TO DATA BASE 
+        data_base = sqlite3.connect('inventory.db')
+        data_editor = data_base.cursor()
+        SQL_COMMAND = "DELETE from products WHERE name = ? AND manufacturer = ? AND expiry = ? AND quantity = ?"
+        data_editor.execute(SQL_COMMAND, (name, manufacturer, expiry, stock))
+        data_base.commit()
+        data_base.close()
+        messagebox.showinfo("info", "Product removed from inventory")
+    # Handle any unforseen runtime errors...
+    except Exception as e: messagebox.showerror("Error", "Unable to find product with those fields.")
+
+
+def add_product() -> None :
+    """Add a new product to the database."""
+    # Confirm user input is correct.
+    if not verify_input() : return
+    else :
+        # Collect user input:
+        name = name_user_input.get()
+        manufacturer = manufacturer_input.get()
+        expiry = expiry_user_input.get()
+        stock = stock_user_input.get()
+    try :
+        # ESTABLISH CONNECTION TO DATA BASE 
         data_base = sqlite3.connect('inventory.db')
         data_editor = data_base.cursor()
         SQL_COMMAND = "INSERT INTO products (id, name, manufacturer, description, quantity, expiry) VALUES (?,?,?,?,?,?)"
-        data_editor.execute(SQL_COMMAND, (str(uuid.uuid4()), name, manufacturer, None, stock, expiry))
+        data_editor.execute(SQL_COMMAND, (str(uuid.uuid4()), name, 
+                                          manufacturer, None, stock, expiry))
         data_base.commit()
         data_base.close()
-       except Exception as e: messagebox.showerror("Error", str(e))
+        messagebox.showinfo("info", "Product added to inventory")
+    except Exception as e: messagebox.showerror("Error", str(e))
 
 
-def load_notes():
+def view_products() -> None :
     """Load and display all notes from the database."""
-    listbox.delete(0, tk.END)
-    conn = sqlite3.connect('notes.db')
-    c = conn.cursor()
-    for row in c.execute("SELECT * FROM notes"):
-        listbox.insert(tk.END, row[1])
-    conn.close()
-def delete_note():
-    """Delete the selected note from the database."""
-    selected_note = listbox.get(tk.ACTIVE)
-    if selected_note:
-        conn = sqlite3.connect('notes.db')
-        c = conn.cursor()
-        c.execute("DELETE FROM notes WHERE note_text=?", (selected_note,))
-        conn.commit()
-        conn.close()
-        load_notes()
+    data_base = sqlite3.connect('inventory.db')
+    data_editor = data_base.cursor()
+    for row in data_editor.execute("SELECT * FROM products"):
+        id = row[0]
+        name = row[1]
+        manufacturer = row[2]
+        description = row[3]
+        stock = row[4]
+        expiry = row[5]
+        print("="*100)
+        print("ID: {}\nName: {}\nManufact: {}\nDescription: {}\nStock: {}\nExpiry: {}\n\n\n".format(id, name, manufacturer, description, stock, expiry))
+        #tree_view.insert(tk.END, row[0])
+    data_base.close()
+
 
 
 # Initialize main window
@@ -148,13 +181,13 @@ add_button.place(x = 100, y = 370)
 # 'Delete' button
 del_button = tk.Button(root, text = "Delete Product",
                     width = BUTTON_WIDTH, height = BUTTON_HEIGHT,
-                                                    command = None)
+                                                    command = del_product)
 del_button.place(x = 545, y = 370)
 
 # 'View' button
 view_button = tk.Button(root, text = "View Products",
                     width = BUTTON_WIDTH, height = BUTTON_HEIGHT,
-                                                    command = None)
+                                                    command = view_products)
 view_button.place(x = 1000, y = 370)
 
 # Tree view (main data display) 

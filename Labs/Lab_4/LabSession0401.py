@@ -236,8 +236,9 @@ root.title("Inventory Management System")
 # Width and height of the GUI (pixels)
 GUI_SIZE = "1200x700"
 root.geometry(GUI_SIZE)
-root.resizable = False
-
+# stop the GUI from being resized
+root.maxsize(1200, 700)
+root.minsize(1200, 700)
 # Text labels
 LABEL_FONT = font.Font(family="Times new roman", size=15)
 
@@ -411,17 +412,17 @@ def on_treeview_select(event) :
     """Display all fields of the product selected
     (input them into inputfields)"""
     clear_inputs()
-    # product description is not stored inside treeview
-    # must be retrived from database
-    data_base = sqlite3.connect('inventory.db')
-    control = data_base.cursor()
-    SQL_COMMAND = "SELECT description FROM products WHERE id =?"
-    values = tree_view.item(tree_view.selection(), 'values')
-    id = values[0]
-    description = control.execute(SQL_COMMAND, (id,)).fetchone()[0]
-    data_base.close()
-    product_description.insert("1.0", description)
     try :
+        # product description is not stored inside treeview
+        # must be retrived from database
+        data_base = sqlite3.connect('inventory.db')
+        control = data_base.cursor()
+        SQL_COMMAND = "SELECT description FROM products WHERE id =?"
+        values = tree_view.item(tree_view.selection(), 'values')
+        id = values[0]
+        description = control.execute(SQL_COMMAND, (id,)).fetchone()[0]
+        data_base.close()
+        product_description.insert("1.0", description)
         # update text fields with selected inputs
         id_user_input.set(id)
         name_user_input.set(values[1])

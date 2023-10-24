@@ -141,13 +141,18 @@ def del_product() -> None :
         data_base = sqlite3.connect('inventory.db')
         data_editor = data_base.cursor()
         SQL_COMMAND = "DELETE from products WHERE name = ? AND manufacturer = ? AND expiry = ? AND quantity = ?"
-        data_editor.execute(SQL_COMMAND, (name, manufacturer, expiry, stock))
+        # Confirm user wants to continue
+        answer = messagebox.askyesno("Confirmation", "Are you certain you wish to delete EVERY product that matches all of the specified inputs?")
+        if answer :
+            data_editor.execute(SQL_COMMAND, (name, manufacturer, expiry, stock))
+            # refersh data display
+            clear_inputs()
+            view_all()
+            messagebox.showinfo("info", "Products removed from inventory")            
         data_base.commit()
         data_base.close()
-        messagebox.showinfo("info", "Product removed from inventory")
-        # refersh data display
-        clear_inputs()
-        view_all()
+
+        
 
     # Handle any unforseen runtime errors...
     except Exception as e: messagebox.showerror("Error", "Unable to find product with those fields.")
@@ -236,6 +241,12 @@ root.resizable = False
 # Text labels
 LABEL_FONT = font.Font(family="Times new roman", size=15)
 
+# User information (tells them not to input id unless updating)
+info_label = tk.Label(root, text = "( ONLY USED FOR UPDATING )")
+info_label.place( x = 800, y = 10)
+info_label['font'] = LABEL_FONT
+
+
 # 'Item count' label :
 
 # 'Product name' label:
@@ -264,8 +275,8 @@ stock_label.place( x = 125, y = 320)
 stock_label['font'] = LABEL_FONT
 
 # 'Product description' label:
-description_label = tk.Label(root, text = "Product description")
-description_label.place( x = 845, y = 150)
+description_label = tk.Label(root, text = "Product description (optional)")
+description_label.place( x = 835, y = 150)
 description_label['font'] = LABEL_FONT
 
 
